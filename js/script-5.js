@@ -1,4 +1,4 @@
-
+// objects 
 let particles = [];
 let video;
 let faceApi;
@@ -9,7 +9,7 @@ let noiseTexture;
 
 
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(windowWidth, windowHeight);
   video = createCapture(VIDEO);
   video.size(width, height);
     
@@ -21,7 +21,8 @@ function setup() {
 
   noiseTexture = createGraphics(width/2, height/2);
   noiseTexture = genNoiseImg(noiseTexture);
-
+  
+  //set up particules
   for (let i = 0; i < 300; i++) {
     particles.push({
       x: random(width),
@@ -55,23 +56,8 @@ function gotFaces(error, result) {
 function draw() {
   background(150);
   image(noiseTexture, 0, 0, width, height);//fill with transparent noise image
-  drawFaces(); 
   drawParticles();  
   drawLandmarks(); 
-}
-
-function drawFaces() {
-  for (let d of detections) {
-    const alignedRect = d.alignedRect;
-    const x = alignedRect._box._x;
-    const y = alignedRect._box._y;
-    const w = alignedRect._box._width;
-    const h = alignedRect._box._height;
-
-    noFill();
-    stroke(255);
-    strokeWeight(2);
-  }
 }
 
 // draw the dots on the face
@@ -94,19 +80,19 @@ function drawParticles() {
     let targetX = width / 2; // position of my particules at the beginning 
     let targetY = height / 2;
 
-    if (detections.length > 0) { // findint the center of the face box
+    if (detections.length > 0) { // finding the center of the face box
       const face = detections[0].alignedRect;
       const faceCenterX = face._box._x + face._box._width / 2;
       const faceCenterY = face._box._y + face._box._height / 2;
 
       // Update target to face center
-      targetX = width - (faceCenterX - 1);
+      targetX = width - (faceCenterX - 1); // miroir in the x direction
       targetY = faceCenterY - 1;
     }
 
     // Gently move particle towards the target, but not exactly at the center (some math over here!)
-    p.x = lerp(p.x, targetX + ((noise(p.tx)* 2 - 1)*200), 0.02); // 0.05 is the interpolation factor for smooth following
-    p.y = lerp(p.y, targetY + ((noise(p.ty)* 2 - 1)*200), 0.02);
+    p.x = lerp(p.x, targetX + ((noise(p.tx)* 2 - 1)* 600), 0.02); // 0.05 is the interpolation factor for smooth following
+    p.y = lerp(p.y, targetY + ((noise(p.ty)* 2 - 1)* 600), 0.02);
 
     // adding tx, ty for movement 
     p.tx += p.agitation * 2;
@@ -131,7 +117,7 @@ function genNoiseImg(noiseImg){
   //load all the pixels of the texture
   noiseImg.loadPixels();
 
-  // adapt for different display
+  // adapt for different displays
   let widthd = width * pixelDensity();
   let heightd = height * pixelDensity();
 
